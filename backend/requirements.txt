@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+python-dotenv
+requests
+shapely
+pyproj
+geopandas
+numpy
+pandas
+reportlab
+opencv-python
+
