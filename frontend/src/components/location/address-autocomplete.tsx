@@ -179,8 +179,10 @@ export function AddressAutocomplete({
   const providerLabel =
     provider === "mapbox_searchbox"
       ? "Powered by Mapbox"
+      : provider?.includes("openstreetmap")
+        ? "Powered by OpenStreetMap"
       : provider?.includes("demo")
-        ? "Demo locations · add Mapbox token for full search"
+        ? "Demo location fallback"
         : null;
 
   return (

@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     mapbox_search_base_url: str = "https://api.mapbox.com/search/searchbox/v1"
     mapbox_timeout_seconds: float = 8.0
     mapbox_country: str = "US"
+    nominatim_base_url: str = "https://nominatim.openstreetmap.org"
+    nominatim_timeout_seconds: float = 8.0
+    nominatim_user_agent: str = "SunSight/0.1 (https://github.com/dhruvtoprani/SunSight)"
+    nominatim_country_codes: str | None = None
     static_dir: str | None = None
 
     model_config = SettingsConfigDict(env_file=(".env", "../.env"), env_file_encoding="utf-8")

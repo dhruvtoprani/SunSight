@@ -22,6 +22,9 @@
 | `electricity_rate_per_kwh` | number | Retail electricity rate. |
 | `install_cost_per_watt` | number | Installed cost per watt DC. |
 | `incentive_pct` | number | Incentive percentage as decimal. |
+| `nominatim_base_url` | string | Optional OpenStreetMap Nominatim API base URL. |
+| `nominatim_user_agent` | string | User-Agent sent to Nominatim requests. |
+| `nominatim_country_codes` | string or null | Optional comma-separated Nominatim country filter. |
 
 ## Output Fields
 
@@ -60,7 +63,7 @@ Returns:
 - `suggestions[].place_formatted`
 - `suggestions[].full_address`
 - `suggestions[].feature_type`
-- `suggestions[].source`
+- `suggestions[].source` (`demo`, `mapbox`, `openstreetmap`, or frontend fallback)
 - `provider`
 - `attribution`
 
@@ -154,3 +157,4 @@ Coordinates are GeoJSON order: longitude, latitude.
 - Default install cost: `$2.80/W`.
 - Default incentive: `30%`.
 - Default CO2 factor: `0.386 kg/kWh`.
+- Geocoding provider order: curated demo match, Mapbox when configured, OpenStreetMap Nominatim, deterministic mock fallback.

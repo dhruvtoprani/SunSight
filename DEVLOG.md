@@ -7,6 +7,7 @@
 - Added a Vercel Services entrypoint so the same FastAPI app serves `/api/*` and the frontend online.
 - Moved the committed static frontend export into `backend/static` because Vercel Services packages service-owned files.
 - Deployed production to `https://sunsight-eight.vercel.app`.
+- Added OpenStreetMap Nominatim as a no-key backend geocoding fallback so online address recommendations work without Mapbox.
 - Added same-origin frontend API calls through `/api/*`.
 - Added `/api` backend routes while preserving legacy local endpoints.
 - Added Dockerfile, `.dockerignore`, Render blueprint, and single-service Docker Compose config.
@@ -19,13 +20,15 @@
 ### Decisions Made
 - Use one FastAPI-owned web service as the preferred online deployment path so frontend and backend share a domain.
 - Use Vercel Services for the fastest controlled public deployment and keep Docker/Render as the portable fallback.
+- Use provider order for geocoding: curated demo match, Mapbox if configured, OpenStreetMap fallback, deterministic mock as last resort.
 - Keep frontend fallbacks as demo resilience, not as the primary production architecture.
 
 ### Bugs / Issues
-- Live Mapbox Search Box and PVWatts behavior still need production provider keys in Vercel.
+- Live PVWatts behavior still needs a production provider key in Vercel.
+- Mapbox remains optional for higher-quality address search.
 
 ### Next
-- Add production Mapbox and PVWatts keys in Vercel.
+- Add production PVWatts key in Vercel.
 - Persist projects and estimates.
 
 ## 2026-06-15

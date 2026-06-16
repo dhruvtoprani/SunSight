@@ -34,7 +34,7 @@ scripts/  static frontend build and optimizer smoke tests
 cv/       stretch placeholders for roof/obstruction detection
 ```
 
-Address autocomplete uses Mapbox Search Box when `MAPBOX_ACCESS_TOKEN` is configured and a curated demo catalog otherwise. Regional fallback solar production keeps the rest of the demo usable without external API keys.
+Address autocomplete uses Mapbox Search Box when `MAPBOX_ACCESS_TOKEN` is configured, OpenStreetMap Nominatim as the no-key online fallback, and a curated demo catalog if providers are unavailable. Regional fallback solar production keeps the rest of the demo usable without external API keys.
 
 The preferred deployment is one same-origin web service. FastAPI serves `/api/*` and the exported Next.js frontend from `backend/static`, so the online app does not depend on browser calls to `localhost` or cross-origin API wiring.
 
@@ -54,11 +54,12 @@ The search field is an accessible autocomplete combobox with:
 - Arrow-key navigation and Enter selection.
 - Exact coordinate retrieval after a recommendation is selected.
 - Proximity bias around the current map center.
-- A local demo catalog when Mapbox is not configured.
+- OpenStreetMap-backed online suggestions when Mapbox is not configured.
+- A local demo catalog if external geocoding is unavailable.
 
 ![SunSight address autocomplete](frontend/public/sunsight-address-autocomplete.jpg)
 
-For full U.S. address and place search, create a repo-level `.env` file:
+For premium U.S. address and place search, create a repo-level `.env` file:
 
 ```bash
 MAPBOX_ACCESS_TOKEN=pk_your_mapbox_token
@@ -66,6 +67,8 @@ MAPBOX_COUNTRY=US
 ```
 
 The backend proxies Mapbox Search Box `/suggest` and `/retrieve` requests, so the token does not need to be exposed in the browser bundle.
+
+Without Mapbox, the backend uses OpenStreetMap Nominatim for real online suggestions and direct search. The deterministic demo catalog remains as the final offline fallback.
 
 ## Panel Layout Algorithm
 
@@ -174,14 +177,14 @@ docker build -t sunsight .
 docker run --env-file .env -p 8000:8000 sunsight
 ```
 
-Required production env vars for live provider-backed estimates:
+Recommended production env vars for live provider-backed estimates:
 
 ```bash
 MAPBOX_ACCESS_TOKEN=pk_your_mapbox_token
 PVWATTS_API_KEY=your_pvwatts_key
 ```
 
-If those keys are missing, the app still runs with curated geocoding and regional production fallbacks.
+If those keys are missing, the app still runs with OpenStreetMap geocoding, curated demo geocoding, and regional production fallbacks.
 
 ## Sample Site Result
 
@@ -196,7 +199,7 @@ Exact output depends on assumptions, current PVWatts data, and setback settings.
 
 ## Limitations
 
-- Without `MAPBOX_ACCESS_TOKEN`, autocomplete is limited to the built-in demo location catalog and free-text search uses deterministic fallback coordinates.
+- Without `MAPBOX_ACCESS_TOKEN`, autocomplete uses OpenStreetMap Nominatim and then falls back to the built-in demo location catalog.
 - Solar production requires `PVWATTS_API_KEY` for live PVWatts results and otherwise uses the regional fallback.
 - Setbacks are approximated for area reporting.
 - Panel packing is simple grid packing.

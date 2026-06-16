@@ -8,12 +8,15 @@
 - [x] Add real screenshot assets to `README.md`.
 - [x] Package frontend and backend into one Dockerized same-origin app.
 - [x] Deploy the same-origin FastAPI app to Vercel production.
-- [ ] Add production Mapbox and PVWatts API keys in Vercel.
+- [x] Add no-key OpenStreetMap fallback for online address recommendations.
+- [ ] Add production PVWatts API key in Vercel.
+- [ ] Optionally add Mapbox API key in Vercel for premium address search.
 - [ ] Review npm audit output and decide whether to accept or upgrade transitive dependencies.
 
 ## This Week
 - [x] Integrate PVWatts V8 with fallback behavior.
 - [x] Add Mapbox Search Box autocomplete with deterministic demo fallback.
+- [x] Add OpenStreetMap-backed autocomplete when Mapbox is not configured.
 - [ ] Improve polygon editing controls.
 - [ ] Add PDF report generation.
 - [ ] Add persisted project storage.

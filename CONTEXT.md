@@ -8,7 +8,7 @@ SunSight is an AI-assisted solar planning demo. It should let a user enter an ad
 
 The repo now contains a first end-to-end MVP loop:
 
-- Address autocomplete with Mapbox Search Box support and a local demo catalog fallback.
+- Address autocomplete with Mapbox Search Box support, OpenStreetMap Nominatim no-key fallback, and a local demo catalog fallback.
 - Same-origin Vercel deployment path: Next.js exports static files into `backend/static`, FastAPI serves the UI plus `/api/*` from one origin.
 - Frontend-only previews remain demoable through browser-side location, layout, solar, and financial fallbacks, but the preferred online path is the Vercel-hosted FastAPI service.
 - Production app is deployed at `https://sunsight-eight.vercel.app`.
@@ -25,6 +25,7 @@ The repo now contains a first end-to-end MVP loop:
 - A dedicated map toolbar that remains visible above the satellite canvas on desktop and mobile.
 - Address search supports button and Enter-key submission, resets stale site state, and recenters the map.
 - Address recommendations support debouncing, mouse selection, arrow-key navigation, Enter selection, and exact coordinate retrieval.
+- Online address recommendations work without Mapbox by using OpenStreetMap Nominatim through the backend.
 
 ## Current Architecture
 
@@ -50,6 +51,7 @@ render.yaml                          Render Docker Web Service blueprint
 - Use grid panel packing before advanced geometry optimization.
 - Use PVWatts V8 when configured, with a regional fallback for missing keys or API failures.
 - Proxy Mapbox Search Box `suggest` and `retrieve` calls through FastAPI so provider credentials stay server-side.
+- Use OpenStreetMap Nominatim as the no-key geocoding fallback before deterministic mock coordinates.
 - Keep a curated local suggestion catalog so autocomplete remains demonstrable without a Mapbox token.
 - Default browser API calls go to same-origin `/api/*` so online deployment avoids CORS and `localhost` failures.
 - Use one FastAPI-owned same-origin service as the primary deployment model.
@@ -61,6 +63,7 @@ render.yaml                          Render Docker Web Service blueprint
 - The app can run without external API keys.
 - The frontend can still demo analysis if the backend is down, but the Vercel deployment keeps backend logic online.
 - Address autocomplete can still suggest known demo locations if the backend is down.
+- Backend address search uses OpenStreetMap when Mapbox is not configured.
 - Backend endpoints match the PRD's first API surface.
 - Sample GeoJSON is available at `data/sample/demo_polygon.geojson`.
 - Frontend lint and production build pass.
@@ -69,7 +72,7 @@ render.yaml                          Render Docker Web Service blueprint
 - Desktop and 390px mobile layouts render without horizontal overflow.
 - All map drawing controls are visible at 390px mobile width.
 - Address autocomplete works on desktop and mobile through mouse and keyboard selection.
-- Mapbox Search Box is ready when `MAPBOX_ACCESS_TOKEN` is configured.
+- Mapbox Search Box is ready when `MAPBOX_ACCESS_TOKEN` is configured; OpenStreetMap handles no-key online search.
 - PVWatts V8 integration is implemented against `developer.nlr.gov`.
 - Eleven backend unit tests cover geocoding, solar parsing, fallback behavior, and financial calculations.
 - The production Vercel URL serves both the frontend routes and `/api/*` routes from one package.
@@ -77,7 +80,8 @@ render.yaml                          Render Docker Web Service blueprint
 ## What Is Broken / Incomplete
 
 - No database persistence.
-- Production Mapbox and PVWatts provider keys still need to be configured for live third-party-backed data.
+- Production PVWatts provider key still needs to be configured for live solar production data.
+- Mapbox remains optional for premium address search.
 - No automatic building footprints.
 - No PDF export.
 - No computer vision features.
@@ -86,7 +90,7 @@ render.yaml                          Render Docker Web Service blueprint
 
 ## Next Priority
 
-Add production provider keys, then improve polygon vertex editing and project persistence.
+Add a production PVWatts key, then improve polygon vertex editing and project persistence.
 
 ## Important Commands
 
@@ -125,7 +129,8 @@ python scripts/run_layout_optimizer.py --sample data/sample/demo_polygon.geojson
 ## Dataset/API Assumptions
 
 - Esri World Imagery is used for satellite tiles.
-- Mapbox Search Box is optional; without a token, autocomplete uses the local demo catalog.
+- Mapbox Search Box is optional; without a token, autocomplete uses OpenStreetMap and then the local demo catalog.
+- OpenStreetMap Nominatim is the no-key online geocoding fallback.
 - PVWatts uses `https://developer.nlr.gov/api/pvwatts/v8.json`.
 - The former `developer.nrel.gov` domain was retired on May 29, 2026.
 - A configured `PVWATTS_API_KEY` enables live estimates.
