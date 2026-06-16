@@ -7,7 +7,8 @@
 - [x] Modernize the planner UI and verify desktop/mobile responsiveness.
 - [x] Add real screenshot assets to `README.md`.
 - [x] Package frontend and backend into one Dockerized same-origin app.
-- [ ] Deploy the Docker app to Render, Fly.io, or Railway.
+- [x] Deploy the same-origin FastAPI app to Vercel production.
+- [ ] Add production Mapbox and PVWatts API keys in Vercel.
 - [ ] Review npm audit output and decide whether to accept or upgrade transitive dependencies.
 
 ## This Week

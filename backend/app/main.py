@@ -49,6 +49,20 @@ for api_prefix in ("", "/api"):
     app.include_router(routes_reports.router, prefix=api_prefix)
 
 
+@app.api_route(
+    "/api",
+    methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
+    include_in_schema=False,
+)
+@app.api_route(
+    "/api/{full_path:path}",
+    methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
+    include_in_schema=False,
+)
+def missing_api_route(full_path: str = "") -> None:
+    raise HTTPException(status_code=404, detail="API route not found")
+
+
 @app.api_route("/{full_path:path}", methods=["GET", "HEAD"], include_in_schema=False)
 def frontend(full_path: str = "") -> FileResponse:
     if not STATIC_DIR.exists():

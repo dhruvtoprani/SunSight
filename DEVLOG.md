@@ -4,6 +4,9 @@
 
 ### Completed
 - Converted the app toward a one-package deployment model: Next.js static export served by FastAPI from the same container.
+- Added a Vercel Services entrypoint so the same FastAPI app serves `/api/*` and the frontend online.
+- Moved the committed static frontend export into `backend/static` because Vercel Services packages service-owned files.
+- Deployed production to `https://sunsight-eight.vercel.app`.
 - Added same-origin frontend API calls through `/api/*`.
 - Added `/api` backend routes while preserving legacy local endpoints.
 - Added Dockerfile, `.dockerignore`, Render blueprint, and single-service Docker Compose config.
@@ -14,14 +17,15 @@
 - Re-ran frontend lint, frontend production build, and backend unit tests.
 
 ### Decisions Made
-- Use one Dockerized FastAPI web service as the preferred online deployment path so frontend and backend share a domain.
+- Use one FastAPI-owned web service as the preferred online deployment path so frontend and backend share a domain.
+- Use Vercel Services for the fastest controlled public deployment and keep Docker/Render as the portable fallback.
 - Keep frontend fallbacks as demo resilience, not as the primary production architecture.
 
 ### Bugs / Issues
-- Full production deployment still needs a hosted Docker service and provider keys for live Mapbox and PVWatts behavior.
+- Live Mapbox Search Box and PVWatts behavior still need production provider keys in Vercel.
 
 ### Next
-- Deploy the Dockerized app to Render, Fly.io, or Railway.
+- Add production Mapbox and PVWatts keys in Vercel.
 - Persist projects and estimates.
 
 ## 2026-06-15

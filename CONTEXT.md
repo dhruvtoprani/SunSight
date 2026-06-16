@@ -9,8 +9,9 @@ SunSight is an AI-assisted solar planning demo. It should let a user enter an ad
 The repo now contains a first end-to-end MVP loop:
 
 - Address autocomplete with Mapbox Search Box support and a local demo catalog fallback.
-- Single-container deployment path: Next.js exports static files, FastAPI serves the UI plus `/api/*` from one origin.
-- Frontend-only previews remain demoable through browser-side location, layout, solar, and financial fallbacks, but the preferred online path is the Dockerized FastAPI server.
+- Same-origin Vercel deployment path: Next.js exports static files into `backend/static`, FastAPI serves the UI plus `/api/*` from one origin.
+- Frontend-only previews remain demoable through browser-side location, layout, solar, and financial fallbacks, but the preferred online path is the Vercel-hosted FastAPI service.
+- Production app is deployed at `https://sunsight-eight.vercel.app`.
 - Satellite map using Leaflet and Esri World Imagery.
 - Click-to-draw site polygons.
 - Click-to-draw exclusion zones.
@@ -36,7 +37,9 @@ frontend/src/app/                    Next.js App Router pages
 frontend/src/components/map/         Leaflet map drawing and overlays
 frontend/src/components/layout/      Main planner flow
 frontend/src/lib/                    API client, types, formatters, fallback logic
-Dockerfile                           Builds frontend export and runs FastAPI as the single web service
+backend/static/                      Committed Next.js static export served by FastAPI
+main.py                              Vercel Services entrypoint for the FastAPI app
+Dockerfile                           Portable Docker fallback for the same-origin app
 render.yaml                          Render Docker Web Service blueprint
 ```
 
@@ -49,13 +52,14 @@ render.yaml                          Render Docker Web Service blueprint
 - Proxy Mapbox Search Box `suggest` and `retrieve` calls through FastAPI so provider credentials stay server-side.
 - Keep a curated local suggestion catalog so autocomplete remains demonstrable without a Mapbox token.
 - Default browser API calls go to same-origin `/api/*` so online deployment avoids CORS and `localhost` failures.
-- Use one Dockerized web service as the primary deployment model.
+- Use one FastAPI-owned same-origin service as the primary deployment model.
+- Use Vercel Services for the live deployment and keep Docker as the portable fallback.
 - Use JSON export before PDF export.
 
 ## What Works
 
 - The app can run without external API keys.
-- The frontend can still demo analysis if the backend is down, but Docker deployment keeps backend logic online.
+- The frontend can still demo analysis if the backend is down, but the Vercel deployment keeps backend logic online.
 - Address autocomplete can still suggest known demo locations if the backend is down.
 - Backend endpoints match the PRD's first API surface.
 - Sample GeoJSON is available at `data/sample/demo_polygon.geojson`.
@@ -68,11 +72,12 @@ render.yaml                          Render Docker Web Service blueprint
 - Mapbox Search Box is ready when `MAPBOX_ACCESS_TOKEN` is configured.
 - PVWatts V8 integration is implemented against `developer.nlr.gov`.
 - Eleven backend unit tests cover geocoding, solar parsing, fallback behavior, and financial calculations.
+- The production Vercel URL serves both the frontend routes and `/api/*` routes from one package.
 
 ## What Is Broken / Incomplete
 
 - No database persistence.
-- No hosted Docker deployment has been created yet; Render/Fly/Railway credentials are still needed for a public one-container backend-backed URL.
+- Production Mapbox and PVWatts provider keys still need to be configured for live third-party-backed data.
 - No automatic building footprints.
 - No PDF export.
 - No computer vision features.
@@ -81,7 +86,7 @@ render.yaml                          Render Docker Web Service blueprint
 
 ## Next Priority
 
-Improve polygon vertex editing, then add persisted projects.
+Add production provider keys, then improve polygon vertex editing and project persistence.
 
 ## Important Commands
 
@@ -98,6 +103,15 @@ cd frontend
 npm install
 npm run dev
 npm run build
+```
+
+```bash
+./scripts/build_static_frontend.sh
+vercel deploy --prod
+```
+
+```bash
+backend/venv/bin/uvicorn main:app --port 8000
 ```
 
 ```bash

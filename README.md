@@ -27,15 +27,16 @@ Most solar calculators return a broad address-level estimate. SunSight focuses o
 ```text
 frontend/ Next.js App Router + TypeScript + Tailwind + Leaflet + Recharts
 backend/  FastAPI + Pydantic service modules
-Dockerfile builds the frontend as static files and serves them from FastAPI
+backend/static/ committed Next.js static export served by FastAPI in production
+main.py   Vercel Services entrypoint that loads the backend app
 data/     sample GeoJSON inputs
-scripts/  optimizer CLI smoke tests
+scripts/  static frontend build and optimizer smoke tests
 cv/       stretch placeholders for roof/obstruction detection
 ```
 
 Address autocomplete uses Mapbox Search Box when `MAPBOX_ACCESS_TOKEN` is configured and a curated demo catalog otherwise. Regional fallback solar production keeps the rest of the demo usable without external API keys.
 
-The preferred deployment is a single Dockerized web service. FastAPI serves `/api/*` and the exported Next.js frontend from the same origin, so the online app does not depend on browser calls to `localhost` or cross-origin API wiring.
+The preferred deployment is one same-origin web service. FastAPI serves `/api/*` and the exported Next.js frontend from `backend/static`, so the online app does not depend on browser calls to `localhost` or cross-origin API wiring.
 
 ## Tech Stack
 
@@ -143,10 +144,8 @@ Open `http://localhost:3000`.
 Static one-package smoke test without Docker:
 
 ```bash
-cd frontend
-npm run build
-cd ../backend
-SUNSIGHT_STATIC_DIR=../frontend/out uvicorn app.main:app --port 8000
+./scripts/build_static_frontend.sh
+backend/venv/bin/uvicorn main:app --port 8000
 ```
 
 Open `http://localhost:8000`.
@@ -159,14 +158,21 @@ python scripts/run_layout_optimizer.py --sample data/sample/demo_polygon.geojson
 
 ## Deploy
 
-The current deployment target is one Docker web service:
+Current production deployment uses Vercel Services:
+
+```bash
+./scripts/build_static_frontend.sh
+vercel deploy --prod
+```
+
+The Vercel entrypoint is root `main.py`. It imports the FastAPI app from `backend/app/main.py`, serves `/api/*`, and serves the exported frontend from `backend/static`.
+
+Portable Docker deployment remains available:
 
 ```bash
 docker build -t sunsight .
 docker run --env-file .env -p 8000:8000 sunsight
 ```
-
-On Render, import the repo and use `render.yaml`, or create a Docker Web Service pointing at the root `Dockerfile`.
 
 Required production env vars for live provider-backed estimates:
 

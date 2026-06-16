@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "experimentalServices": {
+    "app": {
+      "entrypoint": "main.py",
+      "routePrefix": "/",
+      "includeFiles": [
+        "backend/**",
+        "backend/static/**"
+      ]
+    }
+  }
+}
