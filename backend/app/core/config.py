@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     mapbox_search_base_url: str = "https://api.mapbox.com/search/searchbox/v1"
     mapbox_timeout_seconds: float = 8.0
     mapbox_country: str = "US"
+    static_dir: str | None = None
 
     model_config = SettingsConfigDict(env_file=(".env", "../.env"), env_file_encoding="utf-8")
 

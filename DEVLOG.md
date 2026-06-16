@@ -1,5 +1,29 @@
 # DEVLOG
 
+## 2026-06-16
+
+### Completed
+- Converted the app toward a one-package deployment model: Next.js static export served by FastAPI from the same container.
+- Added same-origin frontend API calls through `/api/*`.
+- Added `/api` backend routes while preserving legacy local endpoints.
+- Added Dockerfile, `.dockerignore`, Render blueprint, and single-service Docker Compose config.
+- Added FastAPI static serving for exported frontend routes and assets.
+- Added a frontend demo-location fallback for address autocomplete so deployed frontend previews remain usable without a running FastAPI backend.
+- Expanded the frontend demo geocoder with Stanford, MIT, Apple Park, Googleplex, UC Berkeley, Empire State Building, and Tesla Fremont Factory.
+- Verified no-backend autocomplete behavior in the in-app browser by typing `stan`, selecting Stanford University, and confirming coordinates updated.
+- Re-ran frontend lint, frontend production build, and backend unit tests.
+
+### Decisions Made
+- Use one Dockerized FastAPI web service as the preferred online deployment path so frontend and backend share a domain.
+- Keep frontend fallbacks as demo resilience, not as the primary production architecture.
+
+### Bugs / Issues
+- Full production deployment still needs a hosted Docker service and provider keys for live Mapbox and PVWatts behavior.
+
+### Next
+- Deploy the Dockerized app to Render, Fly.io, or Railway.
+- Persist projects and estimates.
+
 ## 2026-06-15
 
 ### Completed
@@ -9,13 +33,13 @@
 - Re-ran frontend lint, frontend production build, and backend unit tests.
 
 ### Decisions Made
-- Keep Vercel preview deployment frontend-only for now and rely on honest demo fallbacks unless a hosted backend and provider keys are configured.
+- Keep frontend fallbacks as demo resilience when an API host is unavailable.
 
 ### Bugs / Issues
-- Full production deployment still needs a hosted FastAPI backend for live Mapbox, PVWatts, geometry, and report endpoints.
+- Full production behavior requires a hosted backend and provider keys for live Mapbox and PVWatts behavior.
 
 ### Next
-- Deploy the FastAPI backend and set `NEXT_PUBLIC_API_BASE_URL` for live provider-backed estimates.
+- Deploy a backend-backed online app.
 - Persist projects and estimates.
 
 ## 2026-06-08

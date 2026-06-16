@@ -9,7 +9,8 @@ SunSight is an AI-assisted solar planning demo. It should let a user enter an ad
 The repo now contains a first end-to-end MVP loop:
 
 - Address autocomplete with Mapbox Search Box support and a local demo catalog fallback.
-- Frontend-only deployed previews remain demoable through browser-side location, layout, solar, and financial fallbacks.
+- Single-container deployment path: Next.js exports static files, FastAPI serves the UI plus `/api/*` from one origin.
+- Frontend-only previews remain demoable through browser-side location, layout, solar, and financial fallbacks, but the preferred online path is the Dockerized FastAPI server.
 - Satellite map using Leaflet and Esri World Imagery.
 - Click-to-draw site polygons.
 - Click-to-draw exclusion zones.
@@ -27,7 +28,7 @@ The repo now contains a first end-to-end MVP loop:
 ## Current Architecture
 
 ```text
-backend/app/main.py                  FastAPI app setup
+backend/app/main.py                  FastAPI app setup, `/api/*` routing, exported frontend serving
 backend/app/api/                     Route modules
 backend/app/schemas/                 Pydantic request/response models
 backend/app/services/                Geocoding, geometry, layout, solar, financial, report logic
@@ -35,6 +36,8 @@ frontend/src/app/                    Next.js App Router pages
 frontend/src/components/map/         Leaflet map drawing and overlays
 frontend/src/components/layout/      Main planner flow
 frontend/src/lib/                    API client, types, formatters, fallback logic
+Dockerfile                           Builds frontend export and runs FastAPI as the single web service
+render.yaml                          Render Docker Web Service blueprint
 ```
 
 ## Key Technical Decisions
@@ -45,13 +48,14 @@ frontend/src/lib/                    API client, types, formatters, fallback log
 - Use PVWatts V8 when configured, with a regional fallback for missing keys or API failures.
 - Proxy Mapbox Search Box `suggest` and `retrieve` calls through FastAPI so provider credentials stay server-side.
 - Keep a curated local suggestion catalog so autocomplete remains demonstrable without a Mapbox token.
-- Keep the Vercel preview frontend-only until the FastAPI backend is hosted; set `NEXT_PUBLIC_API_BASE_URL` once that backend exists.
+- Default browser API calls go to same-origin `/api/*` so online deployment avoids CORS and `localhost` failures.
+- Use one Dockerized web service as the primary deployment model.
 - Use JSON export before PDF export.
 
 ## What Works
 
 - The app can run without external API keys.
-- The frontend can still demo analysis if the backend is down.
+- The frontend can still demo analysis if the backend is down, but Docker deployment keeps backend logic online.
 - Address autocomplete can still suggest known demo locations if the backend is down.
 - Backend endpoints match the PRD's first API surface.
 - Sample GeoJSON is available at `data/sample/demo_polygon.geojson`.
@@ -68,7 +72,7 @@ frontend/src/lib/                    API client, types, formatters, fallback log
 ## What Is Broken / Incomplete
 
 - No database persistence.
-- No hosted backend deployment yet; Vercel preview currently uses frontend fallbacks unless configured otherwise.
+- No hosted Docker deployment has been created yet; Render/Fly/Railway credentials are still needed for a public one-container backend-backed URL.
 - No automatic building footprints.
 - No PDF export.
 - No computer vision features.
@@ -94,6 +98,10 @@ cd frontend
 npm install
 npm run dev
 npm run build
+```
+
+```bash
+docker compose up --build
 ```
 
 ```bash

@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: sunsight
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: MAPBOX_ACCESS_TOKEN
+        sync: false
+      - key: PVWATTS_API_KEY
+        sync: false
+      - key: MAPBOX_COUNTRY
+        value: US
+      - key: PVWATTS_BASE_URL
+        value: https://developer.nlr.gov/api/pvwatts/v8.json

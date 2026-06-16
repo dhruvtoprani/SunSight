@@ -27,6 +27,7 @@ Most solar calculators return a broad address-level estimate. SunSight focuses o
 ```text
 frontend/ Next.js App Router + TypeScript + Tailwind + Leaflet + Recharts
 backend/  FastAPI + Pydantic service modules
+Dockerfile builds the frontend as static files and serves them from FastAPI
 data/     sample GeoJSON inputs
 scripts/  optimizer CLI smoke tests
 cv/       stretch placeholders for roof/obstruction detection
@@ -34,7 +35,7 @@ cv/       stretch placeholders for roof/obstruction detection
 
 Address autocomplete uses Mapbox Search Box when `MAPBOX_ACCESS_TOKEN` is configured and a curated demo catalog otherwise. Regional fallback solar production keeps the rest of the demo usable without external API keys.
 
-The Vercel preview can run as a frontend-only demo. In that mode, known demo locations, geometry, layout, solar, and financial calculations fall back to deterministic browser-side logic. Live Mapbox and PVWatts-backed estimates require the FastAPI backend to be hosted and `NEXT_PUBLIC_API_BASE_URL` to point at it.
+The preferred deployment is a single Dockerized web service. FastAPI serves `/api/*` and the exported Next.js frontend from the same origin, so the online app does not depend on browser calls to `localhost` or cross-origin API wiring.
 
 ## Tech Stack
 
@@ -111,7 +112,15 @@ Savings account for self-consumption and discounted exported production.
 
 ## Run Locally
 
-Backend:
+Fastest production-like path:
+
+```bash
+docker compose up --build
+```
+
+Open `http://localhost:8000`.
+
+Split development path:
 
 ```bash
 cd backend
@@ -121,15 +130,26 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-Frontend:
+In another terminal:
 
 ```bash
 cd frontend
 npm install
-npm run dev
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000 npm run dev
 ```
 
 Open `http://localhost:3000`.
+
+Static one-package smoke test without Docker:
+
+```bash
+cd frontend
+npm run build
+cd ../backend
+SUNSIGHT_STATIC_DIR=../frontend/out uvicorn app.main:app --port 8000
+```
+
+Open `http://localhost:8000`.
 
 Optimizer smoke test:
 
@@ -139,21 +159,23 @@ python scripts/run_layout_optimizer.py --sample data/sample/demo_polygon.geojson
 
 ## Deploy
 
-The current deployment target is the Next.js frontend:
+The current deployment target is one Docker web service:
 
 ```bash
-cd frontend
-npm run build
-vercel deploy
+docker build -t sunsight .
+docker run --env-file .env -p 8000:8000 sunsight
 ```
 
-For a live backend-backed deployment, host `backend/` separately and configure:
+On Render, import the repo and use `render.yaml`, or create a Docker Web Service pointing at the root `Dockerfile`.
+
+Required production env vars for live provider-backed estimates:
 
 ```bash
-NEXT_PUBLIC_API_BASE_URL=https://your-sunsight-api.example.com
 MAPBOX_ACCESS_TOKEN=pk_your_mapbox_token
 PVWATTS_API_KEY=your_pvwatts_key
 ```
+
+If those keys are missing, the app still runs with curated geocoding and regional production fallbacks.
 
 ## Sample Site Result
 
