@@ -5,33 +5,73 @@
 [![Backend](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Maps](https://img.shields.io/badge/Maps-Leaflet_+_Mapbox-7C5CFF?style=for-the-badge)](https://leafletjs.com/)
 
-SunSight is an AI-assisted solar layout and savings planner for turning a real address, rooftop, or parcel into an explainable solar feasibility estimate.
+SunSight is a solar feasibility workspace that helps a homeowner, property owner, or early-stage solar seller understand whether a rooftop or parcel is worth pursuing before paying for a full site survey.
 
-It combines address search, satellite mapping, polygon-based site selection, exclusion zones, deterministic panel packing, PV production estimates, savings assumptions, and payback modeling into one clean planning workspace.
+The product turns a real address into a visual planning flow: find the site, draw the usable area, remove blocked zones, compare solar layout strategies, and understand the expected capacity, generation, savings, payback, and emissions impact.
 
-The product goal is not to replace production solar design software. SunSight is a portfolio-grade MVP that shows the full loop from messy real-world geography to an understandable system-size, energy, savings, and ROI recommendation.
+**Links:** [Live demo](https://sunsight-eight.vercel.app) · [Source repository](https://github.com/dhruvtoprani/SunSight) · [Product goals](#product-goals) · [Demo flow](#demo-flow) · [Architecture](#architecture) · [Deployment](#deploy)
 
-**Links:** [Live demo](https://sunsight-eight.vercel.app) · [Source repository](https://github.com/dhruvtoprani/SunSight) · [Architecture](#architecture) · [Local setup](#run-locally) · [Deployment](#deploy) · [Limitations](#limitations)
+## Problem
+
+Solar interest often starts with one simple question:
+
+> Is this specific roof or parcel actually a good solar candidate?
+
+Most lightweight solar calculators stop at broad address-level estimates. They do not let a user directly shape the usable area, exclude obstructions, compare design strategies, or see how geometry turns into panels, production, savings, and payback.
+
+SunSight closes that gap by making the first feasibility step visual, interactive, and explainable.
+
+## Who It Helps
+
+| User | Need | SunSight value |
+| --- | --- | --- |
+| Homeowners and property owners | Understand if solar is worth exploring | Quick capacity, production, savings, and payback estimate from a selected site |
+| Solar sales teams | Qualify prospects before deeper design work | A clean visual report that explains why a site looks promising or constrained |
+| Campus and facilities teams | Evaluate candidate roofs or parcels | Fast comparison across possible installation areas without GIS-heavy tooling |
+| Product and energy teams | Prototype solar planning workflows | End-to-end MVP with mapping, layout, production, and financial assumptions in one flow |
+
+## Product Goals
+
+SunSight is designed around four product outcomes:
+
+1. **Reduce uncertainty early.** Give users a clear first-pass answer before a formal survey.
+2. **Make assumptions visible.** Show the selected area, panel count, system size, production model, savings logic, and fallback status.
+3. **Support comparison.** Let users compare Max Capacity, Conservative, and Best ROI layouts rather than seeing one opaque estimate.
+4. **Create a clean handoff.** Export a structured report that can become the starting point for a deeper solar design, sales conversation, or feasibility study.
+
+## End State
+
+The long-term version of SunSight is a lightweight solar pre-design operating system:
+
+- Address-first project creation.
+- Roof and parcel selection from satellite imagery.
+- Building footprint and obstruction suggestions.
+- Editable setback, shade, pitch, and tariff assumptions.
+- Side-by-side layout and ROI comparison.
+- Shareable reports for homeowners, sales teams, and facilities teams.
+- Persistent project history with geospatial data storage.
+
+The current MVP proves the core loop: location input to site geometry to panel layout to production and ROI estimate.
 
 ## Demo Flow
 
-1. Type an address, campus, or landmark and select an autocomplete recommendation.
+1. Search for an address, campus, or landmark.
 2. Open the satellite planning map.
-3. Draw a site polygon or load the sample roof.
-4. Optionally draw exclusion zones.
-5. Optimize three layouts: Max Capacity, Conservative, and Best ROI.
-6. Review usable area, panel count, kW DC, monthly generation, savings, payback, and CO2 avoided.
-7. Export the current report as JSON.
+3. Draw a rooftop or parcel polygon, or load the sample roof.
+4. Add exclusion zones for unusable areas.
+5. Generate Max Capacity, Conservative, and Best ROI layouts.
+6. Review usable area, panel count, kW DC, annual generation, savings, payback, and CO2 avoided.
+7. Export the current estimate as JSON.
 
 ## Live Product
 
 The public deployment runs as one same-origin Vercel Services app:
 
 - [Open the deployed SunSight demo](https://sunsight-eight.vercel.app)
-- Search for a location or use the sample site
-- Draw a rooftop or parcel polygon on satellite imagery
-- Compare solar layout strategies and financial assumptions
-- Export the current estimate as JSON
+- Try a real address or the sample site
+- Draw a site boundary on satellite imagery
+- Compare solar layout strategies
+- Review the report panel and export the estimate
 
 ## Product Snapshot
 
@@ -41,21 +81,37 @@ The public deployment runs as one same-origin Vercel Services app:
 | Layout engine | Deterministic panel packing across selected polygon geometry with orientation comparison |
 | Production model | PVWatts V8 when configured, regional fallback when live provider data is unavailable |
 | Financial model | Install cost, incentives, retail rate, export value, simple payback, and CO2 avoided |
+| Export | JSON report for the selected site and layout assumptions |
 | Frontend | Next.js App Router, TypeScript, Tailwind CSS, Leaflet, Recharts |
 | Backend | FastAPI, Pydantic, Python geometry and solar service modules |
 | Deployment | Vercel Services with FastAPI serving `/api/*` and the exported frontend from one origin |
 
 ## Screenshots
 
-Run the frontend and backend locally, then open `http://localhost:3000`. The current MVP renders a polished graphite planning workspace with a focused site sidebar, satellite map overlays, responsive charts, layout comparison, and report preview.
+The current MVP renders a polished graphite planning workspace with a focused site sidebar, satellite map overlays, responsive charts, layout comparison, and report preview.
 
 ![SunSight UI preview](frontend/public/sunsight-ui-preview.jpg)
 
 ![SunSight address autocomplete](frontend/public/sunsight-address-autocomplete.jpg)
 
-## Why This Matters
+## What Works
 
-Most solar calculators return a broad address-level estimate. SunSight focuses on the more interesting engineering loop: user-selected geometry, usable area, panel packing, energy production, and ROI assumptions.
+- Real address and place search with Mapbox when configured.
+- OpenStreetMap and curated demo fallback when no provider key is available.
+- Satellite site planning with user-drawn polygons.
+- Exclusion zones for blocked or unusable areas.
+- Three layout strategies for comparing different planning goals.
+- Panel count, kW DC, annual kWh, monthly generation, savings, payback, and CO2 avoided.
+- Same-origin deployment where FastAPI serves both `/api/*` and the exported frontend.
+- JSON export for the current report.
+
+## Key Product Decisions
+
+- **Visual first:** The user starts with a map, not a form full of assumptions.
+- **Explainable estimate:** The app exposes the geometry, production source, and financial assumptions behind the recommendation.
+- **Fallback resilient:** The demo remains usable even without premium API keys.
+- **Comparison over certainty:** The MVP shows planning tradeoffs instead of pretending one layout is final.
+- **One-origin deployment:** Frontend and backend ship together to avoid brittle localhost or CORS issues in production.
 
 ## Architecture
 
@@ -240,15 +296,12 @@ Exact output depends on assumptions, current PVWatts data, and setback settings.
 - Panel packing is simple grid packing.
 - Shade, pitch, LiDAR, utility tariffs, permitting, and battery modeling are out of MVP scope.
 
-## Future Work
+## Roadmap
 
+- Add production Mapbox and PVWatts keys in Vercel.
 - Surface PVWatts weather-data metadata and fallback status more prominently in the UI.
 - Add persisted projects with PostgreSQL/PostGIS.
-- Add Mapbox Draw or richer editing controls.
-- Generate PDF reports.
+- Add richer polygon editing controls.
 - Add building footprint suggestions.
+- Generate shareable PDF reports.
 - Add optional computer-vision roof assist.
-
-## Interview Story
-
-I built SunSight as an AI-assisted solar planning platform that lets a user enter an address, select a rooftop or parcel on a satellite map, and estimate solar capacity, annual generation, savings, and payback. The core technical problem is converting messy real-world geography into a physical panel layout by projecting polygons into meters, applying setbacks and exclusions, fitting panels, and connecting the resulting system size to production and ROI modeling.
