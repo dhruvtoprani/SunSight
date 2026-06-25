@@ -1,6 +1,17 @@
 # SunSight
 
-**AI Solar Layout & Savings Planner** — a full-stack geospatial energy demo that converts an address-based rooftop or parcel selection into a solar panel layout, production estimate, savings estimate, and payback summary.
+[![Live Demo](https://img.shields.io/badge/Live_Demo-sunsight--eight.vercel.app-C7FF3D?style=for-the-badge&logo=vercel&logoColor=17111F)](https://sunsight-eight.vercel.app)
+[![Frontend](https://img.shields.io/badge/Frontend-Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![Backend](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Maps](https://img.shields.io/badge/Maps-Leaflet_+_Mapbox-7C5CFF?style=for-the-badge)](https://leafletjs.com/)
+
+SunSight is an AI-assisted solar layout and savings planner for turning a real address, rooftop, or parcel into an explainable solar feasibility estimate.
+
+It combines address search, satellite mapping, polygon-based site selection, exclusion zones, deterministic panel packing, PV production estimates, savings assumptions, and payback modeling into one clean planning workspace.
+
+The product goal is not to replace production solar design software. SunSight is a portfolio-grade MVP that shows the full loop from messy real-world geography to an understandable system-size, energy, savings, and ROI recommendation.
+
+**Links:** [Live demo](https://sunsight-eight.vercel.app) · [Source repository](https://github.com/dhruvtoprani/SunSight) · [Architecture](#architecture) · [Local setup](#run-locally) · [Deployment](#deploy) · [Limitations](#limitations)
 
 ## Demo Flow
 
@@ -12,11 +23,35 @@
 6. Review usable area, panel count, kW DC, monthly generation, savings, payback, and CO2 avoided.
 7. Export the current report as JSON.
 
+## Live Product
+
+The public deployment runs as one same-origin Vercel Services app:
+
+- [Open the deployed SunSight demo](https://sunsight-eight.vercel.app)
+- Search for a location or use the sample site
+- Draw a rooftop or parcel polygon on satellite imagery
+- Compare solar layout strategies and financial assumptions
+- Export the current estimate as JSON
+
+## Product Snapshot
+
+| Area | Status |
+| --- | --- |
+| Planning flow | Address search, satellite map, polygon drawing, exclusions, optimization, report preview |
+| Layout engine | Deterministic panel packing across selected polygon geometry with orientation comparison |
+| Production model | PVWatts V8 when configured, regional fallback when live provider data is unavailable |
+| Financial model | Install cost, incentives, retail rate, export value, simple payback, and CO2 avoided |
+| Frontend | Next.js App Router, TypeScript, Tailwind CSS, Leaflet, Recharts |
+| Backend | FastAPI, Pydantic, Python geometry and solar service modules |
+| Deployment | Vercel Services with FastAPI serving `/api/*` and the exported frontend from one origin |
+
 ## Screenshots
 
 Run the frontend and backend locally, then open `http://localhost:3000`. The current MVP renders a polished graphite planning workspace with a focused site sidebar, satellite map overlays, responsive charts, layout comparison, and report preview.
 
 ![SunSight UI preview](frontend/public/sunsight-ui-preview.jpg)
+
+![SunSight address autocomplete](frontend/public/sunsight-address-autocomplete.jpg)
 
 ## Why This Matters
 
@@ -25,13 +60,13 @@ Most solar calculators return a broad address-level estimate. SunSight focuses o
 ## Architecture
 
 ```text
-frontend/ Next.js App Router + TypeScript + Tailwind + Leaflet + Recharts
-backend/  FastAPI + Pydantic service modules
-backend/static/ committed Next.js static export served by FastAPI in production
-main.py   Vercel Services entrypoint that loads the backend app
-data/     sample GeoJSON inputs
-scripts/  static frontend build and optimizer smoke tests
-cv/       stretch placeholders for roof/obstruction detection
+frontend/        Next.js App Router + TypeScript + Tailwind + Leaflet + Recharts
+backend/         FastAPI + Pydantic service modules
+backend/static/  committed Next.js static export served by FastAPI in production
+main.py          Vercel Services entrypoint that loads the backend app
+data/            sample GeoJSON inputs
+scripts/         static frontend build and optimizer smoke tests
+cv/              stretch placeholders for roof/obstruction detection
 ```
 
 Address autocomplete uses Mapbox Search Box when `MAPBOX_ACCESS_TOKEN` is configured, OpenStreetMap Nominatim as the no-key online fallback, and a curated demo catalog if providers are unavailable. Regional fallback solar production keeps the rest of the demo usable without external API keys.
@@ -56,8 +91,6 @@ The search field is an accessible autocomplete combobox with:
 - Proximity bias around the current map center.
 - OpenStreetMap-backed online suggestions when Mapbox is not configured.
 - A local demo catalog if external geocoding is unavailable.
-
-![SunSight address autocomplete](frontend/public/sunsight-address-autocomplete.jpg)
 
 For premium U.S. address and place search, create a repo-level `.env` file:
 
@@ -167,6 +200,8 @@ Current production deployment uses Vercel Services:
 ./scripts/build_static_frontend.sh
 vercel deploy --prod
 ```
+
+Production URL: [https://sunsight-eight.vercel.app](https://sunsight-eight.vercel.app)
 
 The Vercel entrypoint is root `main.py`. It imports the FastAPI app from `backend/app/main.py`, serves `/api/*`, and serves the exported frontend from `backend/static`.
 
